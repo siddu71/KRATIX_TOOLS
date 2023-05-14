@@ -30,87 +30,78 @@ check_success() {
 
 # INSTALL DOCKER
 
-echo "Updating system packages..."
-(sudo apt-get update -y > /dev/null 2>&1) &
+echo -n "Updating system packages..."
+sudo apt-get update -y > /dev/null 2>&1 &
 spinner $!
 check_success "System package update"
 
 if dpkg --get-selections | grep -q "^docker.*install$" >/dev/null; then
-    echo "Removing old versions of Docker..."
-    (sudo apt-get remove docker docker-engine docker.io containerd runc > /dev/null 2>&1) &
+    echo -n "Removing old versions of Docker..."
+    sudo apt-get remove docker docker-engine docker.io containerd runc > /dev/null 2>&1 &
     spinner $!
     check_success "Docker removal"
 else
     echo "Docker not installed, skipping removal"
 fi
 
-
-echo "Updating system packages again..."
-(sudo apt-get update -y > /dev/null 2>&1) &
+echo -n "Updating system packages again..."
+sudo apt-get update -y > /dev/null 2>&1 &
 spinner $!
 check_success "System package update"
 
-echo "Installing ca-certificates, curl, and gnupg..."
-(sudo apt-get install \
-    ca-certificates \
-    curl \
-    gnupg -y > /dev/null 2>&1) &
-    spinner $!
+echo -n "Installing ca-certificates, curl, and gnupg..."
+sudo apt-get install ca-certificates curl gnupg -y > /dev/null 2>&1 &
+spinner $!
 check_success "Installation of ca-certificates, curl, and gnupg"
 
-echo "Setting up Docker repository..."
-(sudo install -m 0755 -d /etc/apt/keyrings > /dev/null 2>&1
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg > /dev/null 2>&1
-sudo chmod a+r /etc/apt/keyrings/docker.gpg > /dev/null 2>&1) &
+echo -n "Setting up Docker repository..."
+sudo install -m 0755 -d /etc/apt/keyrings > /dev/null 2>&1 &
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg > /dev/null 2>&1 &
+sudo chmod a+r /etc/apt/keyrings/docker.gpg > /dev/null 2>&1 &
 spinner $!
 check_success "Docker repository setup"
 
-echo "Adding Docker repository to apt sources..."
-(echo \
-  "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null 2>&1)(sudo apt-get update -y > /dev/null 2>&1) &
+echo -n "Adding Docker repository to apt sources..."
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null 2>&1 &
 spinner $!
 check_success "Adding Docker repository to apt sources"
 
-echo "Updating system packages again..."
-(sudo apt-get update -y > /dev/null 2>&1) &
+echo -n "Updating system packages again..."
+sudo apt-get update -y > /dev/null 2>&1 &
 spinner $!
 check_success "System package update"
 
-echo "Installing Docker..."
-(sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y > /dev/null 2>&1) &
+echo -n "Installing Docker..."
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y > /dev/null 2>&1 &
 spinner $!
 check_success "Docker installation"
 
-echo "Running Docker Hello World..."
-(sudo docker run hello-world > /dev/null 2>&1) &
+echo -n "Running Docker Hello World..."
+sudo docker run hello-world > /dev/null 2>&1 &
 spinner $!
 check_success "Docker Hello World"
 
-echo "Setting Docker permissions..."
-(sudo chmod 777 /var/run/docker.sock > /dev/null 2>&1) &
+echo -n "Setting Docker permissions..."
+sudo chmod 777 /var/run/docker.sock > /dev/null 2>&1 &
 spinner $!
 check_success "Setting Docker permissions"
 
-
 # INSTALL KIND
-
-(echo "Installing Kind..."
-curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.18.0/kind-linux-amd64 > /dev/null 2>&1
-chmod +x ./kind > /dev/null 2>&1
-sudo mv ./kind /usr/local/bin/kind > /dev/null 2>&1) &
+echo -n "Installing Kind..."
+curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.18.0/kind-linux-amd64 > /dev/null 2>&1 &
+chmod +x ./kind > /dev/null 2>&1 &
+sudo mv ./kind /usr/local/bin/kind > /dev/null 2>&1 &
 spinner $!
 check_success "Kind"
 
 # INSTALL KUBECTL
-
-(echo "Installing Kubectl..."
-curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" > /dev/null 2>&1
-curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256" > /dev/null 2>&1
-echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check > /dev/null 2>&1
-sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl > /dev/null 2>&1) &
+echo -n "Installing Kubectl..."
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" > /dev/null 2>&1 &
+curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256" > /dev/null 2>&1 &
+echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check > /dev/null 2>&1 &
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl > /dev/null 2>&1 &
 spinner $!
 check_success "Kubectl"
 
 echo "All installations successful!"
+
