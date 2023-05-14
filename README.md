@@ -105,3 +105,6 @@ check_success "Kubectl"
 
 echo "All installations successful!"
 
+reset
+
+
