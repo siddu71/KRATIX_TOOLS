@@ -19,10 +19,9 @@ spinner() {
   printf "    \b\b\b\b"
 }
 
-# Function to check if the command was successful
 check_success() {
   if [ $? -eq 0 ]; then
-    printf " + $1 installation succeeded\n"
+    printf "\n + $1 installation succeeded\n"
   else
     echo "$1 installation failed"
     exit 1
