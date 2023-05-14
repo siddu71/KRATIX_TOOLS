@@ -94,16 +94,6 @@ spinner $!
 check_success "Setting Docker permissions"
 
 
-echo "Installing Docker..."
-(sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y > /dev/null 2>&1) &
-spinner $!
-check_success "Docker"
-
-echo "Running Docker Hello World..."
-(sudo docker run hello-world > /dev/null 2>&1) &
-spinner $!
-check_success "Docker Hello World"
-
 # INSTALL KIND
 
 (echo "Installing Kind..."
