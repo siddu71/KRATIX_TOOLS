@@ -38,7 +38,7 @@ check_success "Installation of ca-certificates, curl, and gnupg"
 echo -n "Setting up Docker repository..."
 sudo install -m 0755 -d /etc/apt/keyrings > /dev/null 2>&1
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg -y > /dev/null 2>&1
-sudo chmod a+r /etc/apt/keyrings/docker.gpg -y > /dev/null 2>&1
+sudo chmod a+r /etc/apt/keyrings/docker.gpg > /dev/null 2>&1
 check_success "Docker repository setup"
 
 echo -n "Adding Docker repository to apt sources..."
