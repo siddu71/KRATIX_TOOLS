@@ -4,7 +4,6 @@
 #!/bin/bash
 
 # Function to display a spinner while another command is running
-
 spinner() {
   local pid=$1
   local delay=0.1
@@ -16,12 +15,13 @@ spinner() {
     sleep $delay
     printf "\b\b\b\b\b\b"
   done
-  printf "    \b\b\b\b"
+  printf "    \b\b\b\b\n"  # Added newline character here
 }
 
+# Function to check if the command was successful
 check_success() {
   if [ $? -eq 0 ]; then
-    printf "\n + $1 installation succeeded\n"
+    printf " \e[32m\u2713\e[0m $1 installation succeeded\n"
   else
     echo "$1 installation failed"
     exit 1
