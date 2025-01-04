@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 
 ###############################################################################
-# Updated Docker installation script using Docker's official instructions
-# plus best practices (group management, Kind, and Kubectl).
+# Docker, Vim 9+, Kind, and Kubectl installation script
+# - Incorporates Docker’s latest official instructions
+# - Installs or upgrades Vim to 9+ (using jonathonf/vim PPA)
+# - Installs Kind and Kubectl
 ###############################################################################
 
+# Exit on errors, undefined variables, or pipeline failures
 set -euo pipefail
+# Trap for unexpected errors
 trap 'echo "An unexpected error occurred. Exiting..." >&2; exit 1;' ERR
 
 #######################################
@@ -25,7 +29,7 @@ check_success() {
 }
 
 #######################################
-# Ensure the script is run with root privileges
+# Ensure the script is run with root privileges (sudo or root)
 #######################################
 if [ "$EUID" -ne 0 ]; then
   echo "[ERROR] Please run this script as root or with sudo."
@@ -36,7 +40,7 @@ fi
 CURRENT_USER="${SUDO_USER:-$USER}"
 
 ###############################################################################
-# 1) Remove old Docker-related packages (using Docker's snippet)
+# 1) Remove old Docker-related packages (from Docker's recommended snippet)
 ###############################################################################
 log_info "Removing old Docker-related packages..."
 for pkg in docker.io docker-doc docker-compose docker-compose-v2 \
@@ -121,7 +125,34 @@ chmod 660 /var/run/docker.sock || true
 check_success "Docker socket permissions set to 'root:docker' with mode 660"
 
 ###############################################################################
-# 8) (Optional) Install Kind
+# 8) Check and install/upgrade Vim to version 9+
+###############################################################################
+log_info "Checking Vim version..."
+if command -v vim >/dev/null 2>&1; then
+  # Parse the installed Vim version (e.g. "8.2" or "9.0")
+  CURRENT_VIM_VERSION=$(vim --version | head -n 1 | sed -E 's/.*([0-9]+\.[0-9]+).*/\1/')
+  # Extract the major version (the part before the dot)
+  VIM_MAJOR=$(echo "${CURRENT_VIM_VERSION}" | cut -d '.' -f1)
+
+  if [ "$VIM_MAJOR" -lt 9 ]; then
+    log_info "Current Vim version: $CURRENT_VIM_VERSION. Upgrading to 9+..."
+    add-apt-repository ppa:jonathonf/vim -y >/dev/null 2>&1
+    apt-get update -y >/dev/null 2>&1
+    apt-get install -y vim >/dev/null 2>&1
+    check_success "Vim upgraded to 9+"
+  else
+    echo "[INFO] Vim is already version 9+ ($CURRENT_VIM_VERSION). No upgrade needed."
+  fi
+else
+  log_info "Vim not found. Installing Vim 9..."
+  add-apt-repository ppa:jonathonf/vim -y >/dev/null 2>&1
+  apt-get update -y >/dev/null 2>&1
+  apt-get install -y vim >/dev/null 2>&1
+  check_success "Installed Vim 9+"
+fi
+
+###############################################################################
+# 9) (Optional) Install Kind
 ###############################################################################
 log_info "Installing Kind..."
 curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.18.0/kind-linux-amd64 >/dev/null 2>&1
@@ -130,7 +161,7 @@ mv ./kind /usr/local/bin/kind >/dev/null 2>&1
 check_success "Kind installation"
 
 ###############################################################################
-# 9) (Optional) Install Kubectl
+# 10) (Optional) Install Kubectl
 ###############################################################################
 log_info "Installing Kubectl..."
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
@@ -143,7 +174,7 @@ install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl >/dev/null 2>&1
 check_success "Kubectl installation"
 
 ###############################################################################
-# 10) Final Notices
+# 11) Final Notices
 ###############################################################################
 echo -e "\n[SUCCESS] All installations completed successfully!"
 echo "[INFO] If you are not root, please log out and log back in (or run 'newgrp docker')"
